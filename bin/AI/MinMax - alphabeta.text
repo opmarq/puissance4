@@ -1,0 +1,167 @@
+package AI;
+
+import java.util.ArrayList;
+
+import puissance.Grid;
+import puissance.Player;
+
+public class MinMax {
+
+	Grid grid;
+	
+	private int prof;
+	
+	public MinMax(Grid grid,int prof)
+	{
+		this.grid = grid;
+		this.prof = prof;
+	}
+	
+	public int AI()
+	{
+		
+		int poMove = 0;
+	    int alpha = -999;
+	    int beta = 999;
+	    int tmp;
+		
+	    int profondeur = prof;
+	    
+	    ArrayList<Integer> positions = grid.getPossiblePositions();
+	    
+		for (Integer pos : positions) {
+			
+			grid.addValue(Player.AI, pos);
+			
+			tmp = min(grid,profondeur - 1,alpha,beta);
+			
+			if( tmp > alpha )
+			{
+				alpha = tmp;
+				poMove = pos;
+				
+			}else{
+				
+				grid.delValue(pos);
+				break;
+			}
+			
+			grid.delValue(pos);
+			
+		}
+			
+		grid.addValue(Player.AI, poMove);
+		
+		return poMove;
+		
+	}
+
+	public int min(Grid grid, int profondeur,int alpha,int beta)
+	{
+		if(grid.isFull() || eval() != 0 || profondeur <= 0)
+		{
+			if( profondeur <= 0 )
+			{
+				return grid.evalProgress(Player.AI) - grid.evalProgress(Player.FIRST);
+			
+			}else{
+				
+				return eval();
+			}
+			
+		}
+		
+	    int tmp;
+		
+	    ArrayList<Integer> positions = grid.getPossiblePositions();
+	    
+		for (Integer pos : positions) {
+			
+			grid.addValue(Player.FIRST, pos);
+			
+			tmp = max(grid, profondeur - 1,alpha,beta);
+			
+			if( tmp < beta )
+			{
+				beta = tmp;
+			
+			}else{
+				
+				grid.delValue(pos);
+				
+				break;
+			}
+			
+			grid.delValue(pos);
+		}
+		
+		return beta;
+	}
+	
+	public int max(Grid grid, int profondeur,int alpha,int beta)
+	{
+		if(grid.isFull() || eval() != 0 || profondeur <= 0)
+		{
+			if( profondeur <= 0 )
+			{
+				return grid.evalProgress(Player.AI) - grid.evalProgress(Player.FIRST);
+			
+			}else{
+				
+				return eval();
+			}
+			
+		}
+		
+	    int tmp;
+		
+	    ArrayList<Integer> positions = grid.getPossiblePositions();
+	    
+		for (Integer pos : positions) {
+			
+			grid.addValue(Player.AI, pos);
+			
+			tmp = min(grid, profondeur - 1,alpha,beta);
+			
+			if( tmp > alpha )
+			{
+				alpha = tmp;
+			}else{
+				
+				grid.delValue(pos);
+				break;
+			}
+			
+			grid.delValue(pos);
+		}
+		
+		return alpha;
+	}
+	
+	
+	public int eval()
+	{
+		if( grid.checkWin(Player.AI))
+		{
+			return 10;
+			
+		}else if(grid.checkWin(Player.FIRST))
+		{
+			return -10;
+			
+		}else{
+			
+			return 0;
+		}
+	}
+	
+	public void setProf(int prof)
+	{
+		this.prof = prof;
+	}
+	
+	public int getProf()
+	{
+		return prof;
+	}
+}
